@@ -1,0 +1,6 @@
+# Downloaded/converted model weights and benchmark outputs — never commit these.
+models/
+out/
+__pycache__/
+*.pyc
+.venv/

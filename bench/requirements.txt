@@ -1,0 +1,12 @@
+# Core benchmark deps (NLLB + Terjman). CPU-only; installs fine on a 2 vCPU / 4 GB VPS.
+ctranslate2>=4.0            # NLLB int8 inference (+ ct2-transformers-converter CLI)
+transformers>=4.40         # Terjman inference + NLLB tokenizer
+torch>=2.2                  # backend for Terjman (transformers generate); CPU wheel
+sentencepiece              # NLLB/Marian tokenizers
+sacrebleu>=2.4             # chrF scoring
+huggingface_hub>=0.23      # model downloads
+psutil>=5.9                # (reserved for extra memory sampling if needed)
+
+# Optional — only needed for `--with-atlaschat` (the 2B GGUF LLM). Compiles llama.cpp,
+# so the VPS needs build-essential + cmake. Uncomment to install:
+# llama-cpp-python>=0.2.80

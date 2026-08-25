@@ -1,0 +1,12 @@
+{"id": "en01", "direction": "en2dar", "src": "Hello, how are you?", "src_is_arabizi": false, "ref": "سلام، لاباس؟"}
+{"id": "en02", "direction": "en2dar", "src": "How much does this cost?", "src_is_arabizi": false, "ref": "بشحال هادا؟"}
+{"id": "en03", "direction": "en2dar", "src": "Where is the train station?", "src_is_arabizi": false, "ref": "فين كاينة محطة القطار؟"}
+{"id": "en04", "direction": "en2dar", "src": "I would like a coffee, please.", "src_is_arabizi": false, "ref": "بغيت قهوة عافاك."}
+{"id": "en05", "direction": "en2dar", "src": "I'll see you this weekend.", "src_is_arabizi": false, "ref": "نشوفك هاد الويكاند."}
+{"id": "en06", "direction": "en2dar", "src": "Thank you very much, my friend.", "src_is_arabizi": false, "ref": "شكرا بزاف، صاحبي."}
+{"id": "en07", "direction": "en2dar", "src": "Can you help me find the way to the old city?", "src_is_arabizi": false, "ref": "واش تقدر تعاوني نلقى الطريق للمدينة القديمة؟"}
+{"id": "dr01", "direction": "dar2en", "src": "شحال الساعة؟", "src_is_arabizi": false, "ref": "What time is it?"}
+{"id": "dr02", "direction": "dar2en", "src": "أنا فرحان بزاف اليوم.", "src_is_arabizi": false, "ref": "I am very happy today."}
+{"id": "dr03", "direction": "dar2en", "src": "بغيت نمشي للسوق باش نشري الخضرة.", "src_is_arabizi": false, "ref": "I want to go to the market to buy vegetables."}
+{"id": "az01", "direction": "dar2en", "src": "labas? kolchi mzyan?", "src_is_arabizi": true, "ref": "Are you okay? Is everything good?"}
+{"id": "az02", "direction": "dar2en", "src": "3andi mochkil f telephone dyali", "src_is_arabizi": true, "ref": "I have a problem with my phone."}
