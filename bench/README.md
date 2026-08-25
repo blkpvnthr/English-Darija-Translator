@@ -7,9 +7,18 @@ Contenders:
 
 | Engine | Model | Direction | Notes |
 |---|---|---|---|
-| `nllb` | `facebook/nllb-200-distilled-600M` (CTranslate2 int8) | EN ↔ Darija | bidirectional, native `ary_Arab` |
-| `terjman` | `atlasia/Terjman-Large-v2.0` (transformers) | EN → Darija | Darija-fine-tuned, ~240M |
+| `nllb` | `entai2965/nllb-200-distilled-600M-ctranslate2` (int8, **pre-converted**) | EN ↔ Darija | bidirectional, native `ary_Arab` |
+| `terjman` | `lachkarsalim/Helsinki-translation-English_Moroccan-Arabic` (transformers) | EN → Darija | ungated Darija-fine-tuned Helsinki, MarianMT |
 | `atlaschat` *(optional)* | `QuantFactory/Atlas-Chat-2B-GGUF` Q4_K_M (llama.cpp) | both | LLM, best fluency, slow on CPU |
+
+> **Why not AtlasIA's Terjman?** `atlasia/Terjman-Large-v2.0` is a **gated** HF repo (needs login +
+> access approval), so the `terjman` engine defaults to the *ungated* Helsinki-Darija fine-tune, which
+> fills the same niche. To benchmark the real Terjman instead, get a free HF token, accept its terms on
+> the model page, then run with `HF_TOKEN=hf_xxx TERJMAN_MODEL=atlasia/Terjman-Large-v2.0 python bench/run_bench.py`.
+>
+> **Why pre-converted NLLB?** Converting NLLB to int8 on the box loads the full ~2.5 GB fp32 model into
+> RAM and gets **OOM-killed on 4 GB**. Downloading the pre-converted int8 build sidesteps that (~1 GB
+> resident at inference).
 
 ## Run it on the VPS
 

@@ -1,34 +1,45 @@
 """
-Terjman-Large-v2.0 (AtlasIA) via transformers — EN->Darija only.
+Darija-specialist MT engine (Helsinki opus-mt fine-tuned on Darija) via transformers — EN->Darija.
 
-Fine-tuned from Helsinki-NLP/opus-mt-tc-big-en-ar specifically on Darija, ~240M params.
-Unidirectional per the model card, so DAR2EN returns None (shown as N/A in the report).
+Default model: lachkarsalim/Helsinki-translation-English_Moroccan-Arabic  (ungated, MarianMT).
+This fills the same niche as AtlasIA's Terjman but WITHOUT the HF gating that blocked it
+(atlasia/Terjman-Large-v2.0 and the BounharAbdelaziz mirror are both gated).
+
+To benchmark the gated Terjman instead, get an HF token, accept its terms on the model page, then:
+    export HF_TOKEN=hf_xxx
+    export TERJMAN_MODEL=atlasia/Terjman-Large-v2.0
+transformers/huggingface_hub pick up HF_TOKEN automatically. Unidirectional either way (EN->Darija);
+DAR2EN returns None (shown as N/A in the report).
 """
 
 from __future__ import annotations
 
+import os
+
 from .base import Engine, EN2DAR
 
-# atlasia/ is the canonical repo; BounharAbdelaziz/Terjman-Large-v2.0 is the author mirror.
-MODEL_NAME = "atlasia/Terjman-Large-v2.0"
+DEFAULT_MODEL = "lachkarsalim/Helsinki-translation-English_Moroccan-Arabic"
+MODEL_NAME = os.environ.get("TERJMAN_MODEL", DEFAULT_MODEL)
 
 
 class TerjmanEngine(Engine):
-    name = "Terjman-Large"
     supported = (EN2DAR,)
     needs_arabic_script = True  # only ever receives English here, so irrelevant in practice
 
     def __init__(self):
         self.model = None
         self.tokenizer = None
+        self.model_name = MODEL_NAME
+        # Report which model actually ran.
+        self.name = "Helsinki-Darija" if MODEL_NAME == DEFAULT_MODEL else MODEL_NAME.split("/")[-1]
 
     def load(self) -> None:
         import torch
         from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
         torch.set_num_threads(2)  # match 2 vCPU
-        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_name)
         self.model.eval()
 
     def translate(self, text: str, direction: str):

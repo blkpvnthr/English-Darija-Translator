@@ -2,23 +2,20 @@
 NLLB-200-distilled-600M via CTranslate2 (int8) — bidirectional EN<->Darija.
 
 Moroccan Arabic is a first-class NLLB language: eng_Latn <-> ary_Arab.
-On first load we convert facebook/nllb-200-distilled-600M to an int8 CTranslate2 model
-(cached under bench/models/), which is what keeps RAM ~1 GB and inference fast on CPU.
+
+We download a PRE-CONVERTED int8 CTranslate2 build (entai2965/nllb-200-distilled-600M-ctranslate2)
+rather than converting on the box. Converting locally loads the full ~2.5 GB fp32 model into RAM and
+gets OOM-killed on a 4 GB VPS; the pre-converted model is ~600 MB to download and ~1 GB resident at
+inference. The repo ships model.bin + tokenizer files at its root, so both load from one directory.
 """
 
 from __future__ import annotations
 
-import os
-import subprocess
-import sys
-
 from .base import Engine, EN2DAR, DAR2EN
 
-HF_MODEL = "facebook/nllb-200-distilled-600M"
+CT2_REPO = "entai2965/nllb-200-distilled-600M-ctranslate2"
+TOKENIZER_FALLBACK = "facebook/nllb-200-distilled-600M"  # public; used only if the CT2 repo tokenizer fails
 LANG = {EN2DAR: ("eng_Latn", "ary_Arab"), DAR2EN: ("ary_Arab", "eng_Latn")}
-
-_HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CT2_DIR = os.path.join(_HERE, "models", "nllb-600m-ct2-int8")
 
 
 class NllbCt2Engine(Engine):
@@ -33,26 +30,19 @@ class NllbCt2Engine(Engine):
     def load(self) -> None:
         import ctranslate2
         import transformers
+        from huggingface_hub import snapshot_download
 
-        if not os.path.isdir(CT2_DIR):
-            os.makedirs(os.path.dirname(CT2_DIR), exist_ok=True)
-            print(f"[NLLB] converting {HF_MODEL} -> int8 CTranslate2 (one time)...", flush=True)
-            subprocess.run(
-                [
-                    "ct2-transformers-converter",
-                    "--model", HF_MODEL,
-                    "--output_dir", CT2_DIR,
-                    "--quantization", "int8",
-                ],
-                check=True,
-            )
+        model_dir = snapshot_download(CT2_REPO)  # cached under ~/.cache/huggingface
 
-        # intra_threads=2 matches the 2 vCPU box; int8 kernels run on CPU.
+        # intra_threads=2 matches the 2 vCPU box; the model is already int8.
         self.translator = ctranslate2.Translator(
-            CT2_DIR, device="cpu", compute_type="int8", inter_threads=1, intra_threads=2
+            model_dir, device="cpu", compute_type="int8", inter_threads=1, intra_threads=2
         )
-        # The SentencePiece tokenizer still comes from the HF repo.
-        self.tokenizer = transformers.AutoTokenizer.from_pretrained(HF_MODEL)
+        try:
+            self.tokenizer = transformers.AutoTokenizer.from_pretrained(model_dir)
+            self.tokenizer.src_lang = "eng_Latn"  # sanity-check this is really an NLLB tokenizer
+        except Exception:
+            self.tokenizer = transformers.AutoTokenizer.from_pretrained(TOKENIZER_FALLBACK)
 
     def translate(self, text: str, direction: str):
         src_lang, tgt_lang = LANG[direction]
